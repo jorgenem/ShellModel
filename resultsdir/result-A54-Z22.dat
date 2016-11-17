@@ -1,0 +1,159 @@
+			** All input data are identified through a text-line which
+	        ** starts with the two symbols '/' and '*' and ends with ":" or ";"
+	        ** Additional informative text may be included in the form
+	        **        <........ Informative text....... >
+	        ** 
+	
+\* Shell model calculation of proton/neutron systemA -- title: output
+
+
+\* The proton number:   2
+\* The neutron number:  4
+
+\* Twice total projection of angular momentum: 0
+\* Total parity (+, -): +
+
+\* The number of proton particle j-orbits: 4
+             <N  n  l  2*j   min_part  max_part energy
+\* Orbit_Z:   3  1  1   1       0         0     7.241100
+\* Orbit_Z:   3  0  3   5       0         0     4.487000
+\* Orbit_Z:   3  1  1   3       0         2     2.944700
+\* Orbit_Z:   3  0  3   7       0         8     0.000000
+
+\* The number of neutron particle j-orbits: 4
+             <N  n  l  2*j   min_part  max_part energy
+\* Orbit_N:   4  0  4   9       0         4     3.700000
+\* Orbit_N:   3  1  1   1       0         2     2.754000
+\* Orbit_N:   3  0  3   5       0         6     1.542300
+\* Orbit_N:   3  1  1   3       0         4     0.000000
+
+	
+<************* type of program process ***********>
+
+ <** Effective interaction Lanczo process     0  **>
+ <** Calculation of shell-model dimension     1	 **>
+
+
+\* Type of calculation process: 0
+
+      <***** Type of interaction ******>
+
+    <** Two-part veffJ    0 **>
+    <** Two-part veffM    1 **>
+    <** Three-part veffM  2 **>
+
+\* Type of effective interaction: 0
+
+\* Input proton-proton   V-effective:    pp_current.dat
+\* Input neutron-neutron V-effective:    nn_current.dat
+\* Input proton-neutron  V-effective:    pn_current.dat
+
+
+<** Temp. files for storage of nondiag_matr_elem and Lanczos vector **>
+	
+	\* Memory size to store nondiag <pn_SD'|OP|pn_SD> in MB (default 500 MB):1000
+
+\* Max file size for lanczos vectors    in Gb (default 10 GB): 10
+
+<** Energy eigenvalue parameters **>
+
+\* Maximum Lanczos iterations (<1000): 1000
+\* Wanted number of converged eigenstates: 2
+
+<*** END_OF_INPUT_FILE ***> 
+                            -----  Results  ----
+
+  Proton single-particle orbits for m >= 1/2 (symmetric around zero)
+
+m_orb j_orb N  n  l par 2*j 2*m energy *  m_orb j_orb N  n  l par 2*j 2*m energy
+
+ 0     0    3  0  3  -   7    7   0.00 *   5     2    3  1  1  -   3    3    2.94
+ 1     0    3  0  3  -   7    5   0.00 *   6     0    3  0  3  -   7    1    0.00
+ 2     1    3  0  3  -   5    5   4.49 *   7     1    3  0  3  -   5    1    4.49
+ 3     0    3  0  3  -   7    3   0.00 *   8     2    3  1  1  -   3    1    2.94
+ 4     1    3  0  3  -   5    3   4.49 *   9     3    3  1  1  -   1    1    7.24
+
+  Neutron single-particle orbits for m >= 1/2 (symmetric around zero)
+
+m_orb j_orb N  n  l par 2*j 2*m energy *  m_orb j_orb N  n  l par 2*j 2*m energy
+
+ 0     0    4  0  4  +   9    9   3.70 *   6     2    3  1  1  -   3    3    0.00
+ 1     0    4  0  4  +   9    7   3.70 *   7     0    4  0  4  +   9    1    3.70
+ 2     0    4  0  4  +   9    5   3.70 *   8     1    3  0  3  -   5    1    1.54
+ 3     1    3  0  3  -   5    5   1.54 *   9     2    3  1  1  -   3    1    0.00
+ 4     0    4  0  4  +   9    3   3.70 *  10     3    3  1  1  -   1    1    2.75
+ 5     1    3  0  3  -   5    3   1.54 *
+
+Number of proton |SD_Z> configurations = 66
+Number of neutron |SD_N> configurations = 3245
+Total number of   |SD_ZN> configurations = 19548
+ and with oscillator restriction         = 19548
+
+Reserved permanent memory: numElem = 83000000
+
+Stored nondiag matrix elements in memory
+Number of stored <SD'|VEFF_INT|initSDZ,SDN>: 1269537
+Up to and including |initSD> = 0 - Last |initSD> =  19548
+Wall time used : 0 hour 0 min 5 sec
+CPU time used : 0 hour 0 min 5 sec
+
+Stored no 2 energy lanczo vectors
+Wall time: 0 hour 0 min 0 sec
+CPU  time: 0 hour 0 min 0 sec
+Test time H()*Vec()
+Wall time: 0 hour 0 min 0 sec
+CPU  time: 0 hour 0 min 0 sec
+Test time file reading
+Wall time: 0 hour 0 min 0 sec
+CPU  time: 0 hour 0 min 0 sec  
+
+Stored no 25 energy lanczo vectors
+Wall time: 0 hour 0 min 0 sec
+CPU  time: 0 hour 0 min 0 sec
+Test time H()*Vec()
+Wall time: 0 hour 0 min 0 sec
+CPU  time: 0 hour 0 min 0 sec
+Test time file reading
+Wall time: 0 hour 0 min 0 sec
+CPU  time: 0 hour 0 min 0 sec  
+
+Total time used for Lanczos iteration proc
+Wall time: 0 hour 0 min 3 sec
+CPU  time: 0 hour 0 min 3 sec
+
+
+Reserved permanent memory: numElem = 83000000
+
+Stored nondiag matrix elements in memory
+Number of stored <SD'|ANG_INT|initSDZ,SDN>: 181533
+Up to and including |initSD> = 0 - Last |initSD> =  19548
+Wall time used : 0 hour 0 min 0 sec
+CPU time used : 0 hour 0 min 0 sec
+
+Total time used for Lanczos iteration proc
+Wall time: 0 hour 0 min 3 sec
+CPU  time: 0 hour 0 min 3 sec
+
+
+The Lanczos iteration process has converged  after 47 iterations.
+
+Final Eigenvalues
+The total parity is positive
+
+
+The ground state energy =  -12.1663
+
+E(0)=  0.0000 <J**2> = -0.0000
+Proton single-part.  distrib  7/2-  5/2-  3/2-  1/2-
+                     N(j)    1.684 0.000 0.316 0.000 
+Neutron single-part. distrib  9/2+  5/2-  3/2-  1/2-
+                     N(j)    0.121 1.275 2.326 0.279 
+
+E(1)=  0.7798 <J**2> =  6.0000
+Proton single-part.  distrib  7/2-  5/2-  3/2-  1/2-
+                     N(j)    1.682 0.000 0.318 0.000 
+Neutron single-part. distrib  9/2+  5/2-  3/2-  1/2-
+                     N(j)    0.108 1.290 2.301 0.301 
+
+Total shell model process wall time used 0 hour 0 min 10 sec
+Total shell model process cpu time used 0 hour 0 min 10 sec
