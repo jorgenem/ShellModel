@@ -57,28 +57,28 @@ def makeTBMEfile(A,nn_orig=0,pn_orig=0,pp_orig=0):
 
 	# Write to files
 	try:
-		os.remove("rundir/nn_current.dat")
+		os.remove("nn_current.dat")
 	except OSError:
 		pass
-	nn_file = open("rundir/nn_current.dat", "w")
+	nn_file = open("nn_current.dat", "w")
 	nn_file.write("%d\n"%nn_current.shape[0])
 	for i in range(nn_current.shape[0]):
 		nn_file.write("%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%14.6f\n"%(nn_current[i,0],nn_current[i,1],nn_current[i,2],nn_current[i,3],nn_current[i,4],nn_current[i,5],nn_current[i,6],nn_current[i,7],nn_current[i,8],nn_current[i,9],nn_current[i,10],nn_current[i,11],nn_current[i,12],nn_current[i,13],nn_current[i,14]))
 	nn_file.close()
 	try:
-		os.remove("rundir/pn_current.dat")
+		os.remove("pn_current.dat")
 	except OSError:
 		pass
-	pn_file = open("rundir/pn_current.dat", "w")
+	pn_file = open("pn_current.dat", "w")
 	pn_file.write("%d\n"%pn_current.shape[0])
 	for i in range(pn_current.shape[0]):
 		pn_file.write("%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%14.6f\n"%(pn_current[i,0],pn_current[i,1],pn_current[i,2],pn_current[i,3],pn_current[i,4],pn_current[i,5],pn_current[i,6],pn_current[i,7],pn_current[i,8],pn_current[i,9],pn_current[i,10],pn_current[i,11],pn_current[i,12],pn_current[i,13],pn_current[i,14]))
 	pn_file.close()
 	try:
-		os.remove("rundir/pp_current.dat")
+		os.remove("pp_current.dat")
 	except OSError:
 		pass
-	pp_file = open("rundir/pp_current.dat", "w")
+	pp_file = open("pp_current.dat", "w")
 	pp_file.write("%d\n"%pp_current.shape[0])
 	for i in range(pp_current.shape[0]):
 		pp_file.write("%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%3d%14.6f\n"%(pp_current[i,0],pp_current[i,1],pp_current[i,2],pp_current[i,3],pp_current[i,4],pp_current[i,5],pp_current[i,6],pp_current[i,7],pp_current[i,8],pp_current[i,9],pp_current[i,10],pp_current[i,11],pp_current[i,12],pp_current[i,13],pp_current[i,14]))
@@ -89,7 +89,7 @@ def makeTBMEfile(A,nn_orig=0,pn_orig=0,pp_orig=0):
 
 
 
-def makeinputfile(A,Z,MJ,parity,totalJ,SPE,min_part,max_part,Nstates,max_iterations=1000,mem_size=1000,file_size=10):
+def makeinputfile(A,Z,MJ,parity,totalJ,SPE,min_part,max_part,Nstates,max_iterations=1000,mem_size=1000,file_size=10,input_filename="input.dat"):
 	""" 
 	Function to make input files to the shell-model code.
 
@@ -291,10 +291,10 @@ def makeinputfile(A,Z,MJ,parity,totalJ,SPE,min_part,max_part,Nstates,max_iterati
 	
 	# Write to file
 	try:
-		os.remove("rundir/input.dat")
+		os.remove(input_filename)
 	except OSError:
 		pass
-	current_file = open('rundir/input.dat','w')
+	current_file = open(input_filename,'w')
 	current_file.write(input_string)
 	current_file.close()
 
@@ -322,6 +322,11 @@ def read_energy_levels(filename):
 				E_gs = float(words[5])
 				i_line_gs = i_line # Store the line number at which the ground state energy is given. This is used to count down to the lines where the other energy levels are.
 
+				# Check what type of file this is: identical particles or proton-neutron
+				identicalparticles = True
+				if data[i_line_gs+3].split()[0] == "Proton": # This is the signature of a file containing p&n results
+					identicalparticles = False
+
 				# Stop here, get the other energy levels manually
 				break 
 
@@ -333,11 +338,19 @@ def read_energy_levels(filename):
 	# print "E_gs =", E_gs
 
 	# Calculate the number of energy levels present in the file:
-	N_levels = (len(data) - i_line_gs - 4)/6 # This seems to match the formatting of the output file such that N_levels becomes a whole number
-	levels = np.zeros((int(N_levels), 2)) # Matrix to store level info (energy relative to gs, J**2)
-	for i_level in range(int(N_levels)):
-		words = data[i_line_gs + 1 + 6*i_level + 1].split()
-		levels[i_level, :] = (float(words[1]), float(words[4]))
+	if identicalparticles:
+		N_levels = (len(data) - i_line_gs - 4)/3 # This seems to match the formatting of the output file such that N_levels becomes a whole number
+		print N_levels
+		levels = np.zeros((int(N_levels), 2)) # Matrix to store level info (energy relative to gs, J**2)
+		for i_level in range(int(N_levels)):
+			words = data[i_line_gs + 1 + 3*i_level + 1].split()
+			levels[i_level, :] = (float(words[1]), float(words[4]))
+	else:
+		N_levels = (len(data) - i_line_gs - 4)/6 # This seems to match the formatting of the output file such that N_levels becomes a whole number
+		levels = np.zeros((int(N_levels), 2)) # Matrix to store level info (energy relative to gs, J**2)
+		for i_level in range(int(N_levels)):
+			words = data[i_line_gs + 1 + 6*i_level + 1].split()
+			levels[i_level, :] = (float(words[1]), float(words[4]))
 	return E_gs, levels
 
 

@@ -17,22 +17,22 @@ from shell_model_utilities_v1 import *
 
 # === Set up lists of nuclei with corresponding lists of parameters for SM calculation for each:
 nucleus_list = [
-# A   Z   MJ   par  totalJ	      single-particle energies     					 min_part            max_part      Nstates	  
-# TODO: Make it work for only one type of valence particle
-# [50, 22, 0,    1,      0,	 [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [6,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2] ]
+# A   Z   MJ   par  totalJ	      single-particle energies     					 min_part            max_part      Nstates	
+[50, 22, 0,    1,      1,	[0.0,2.9447,4.487,7.2411,0,0,0,0], 				[0,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],   2], # Only one type of particle.
 [52,  22, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [0,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      ,#SPE energies should probably be adjusted! 
-[54,  22, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [0,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      ,
-[58,  28, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [6,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      ,
-[60,  28, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [6,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      
+# [54,  22, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [0,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      ,
+[58,  28, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [6,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      #,
+# [60,  28, 0,    1,    -1,   [0.0,2.9447,4.487,7.2411,0.0,1.5423,2.754,3.7], [6,0,0,0,0,0,0,0], [8,2,0,0,4,6,2,4],    2]      
 ]
 
 # Experimental values - must match with nucleus ordering and Nstates above
 exp_values = [
 # energies  	J      parity (1=+,0=-)
+[[0, 1.553778], [0,2], [1,1]], # 50,22 Ti
 [[0, 1.05006],  [0,2], [1,1]], # 52,22 Ti
-[[0, 1.4948],  [0,2], [1,1]],  # 54,22 Ti
+# [[0, 1.4948],   [0,2], [1,1]], # 54,22 Ti
 [[0, 1.45421],  [0,2], [1,1]], # 58,28 Ni
-[[0, 1.332514], [0,2], [1,1]]  # 60,28 Ni
+# [[0, 1.332514], [0,2], [1,1]]  # 60,28 Ni
 ]
 
 # Set run mode: 0 for calculation of levels, 1 for comparison of previous calculations to experimental levels
@@ -54,31 +54,43 @@ if mode == 0:
 	
 		
 		# === Start calculation ===
-		# Copy current TBMEs and current inputfile to rundir
+		# Create directory rundir, copy master TBME files there and go into it to execute calculation
 		if not os.path.exists('rundir'):
 		    os.makedirs('rundir')
+		shutil.copy('fpshell_pp.dat','rundir/')
+		shutil.copy('fpg9shell_pn.dat','rundir/')
+		shutil.copy('f5pg9shell_nn.dat','rundir/')
+		os.chdir('rundir')
 
 		# Set path to executable depending on whether it is identical particles or p&n:
 		if Z == 20 or A-Z == 28:
 			path_to_PAR_lanczo = '/home/jorgenem/gitrepos/CENS-fork/FCI/parallel/IdenticalParticles/src/PAR-lanczo'
+			identicalparticles = True
 		else:
 			path_to_PAR_lanczo = '/home/jorgenem/gitrepos/CENS-fork/FCI/parallel/pnCase/src/PAR-lanczo'
+			identicalparticles = False
 		makeinputfile(A,Z,MJ,parity,totalJ,SPE,min_part,max_part,Nstates)
 
 		# sys.exit(0)
 
 		makeTBMEfile(A)
-		os.chdir('rundir')
 		# TODO: Figure out a way to use MPI in this. Turns out to be complicated. Consider asking Anders Kvellestad for advice. The below idea does not work.
 		# Nprocs = 4 # Number of CPU cores to use for mpirun -np Nprocs call.
 		# print 'mpirun -np {:d} {:s}'.format(Nprocs,path_to_PAR_lanczo)
-		# sys.exit(0)
 		subprocess.call([path_to_PAR_lanczo, "input.dat"])
+
+		# sys.exit(0)
+
+
 		os.chdir('../')
 		if not os.path.exists('resultsdir'):
 			os.makedirs('resultsdir')
-		shutil.copy('rundir/outputRANK0-result.dat','resultsdir/result-A{:d}-Z{:d}.dat'.format(A,Z))
-		shutil.copy('rundir/outputRANK0-eigen-vectors.dat1','resultsdir/eigen_vectors-A{:d}-Z{:d}.dat1'.format(A,Z))
+		if identicalparticles:
+			shutil.copy('rundir/output-result.dat','resultsdir/result-A{:d}-Z{:d}.dat'.format(A,Z))
+			shutil.copy('rundir/outputRank0-eigen-vectors.dat1','resultsdir/eigen_vectors-A{:d}-Z{:d}.dat1'.format(A,Z))
+		else:
+			shutil.copy('rundir/outputRANK0-result.dat','resultsdir/result-A{:d}-Z{:d}.dat'.format(A,Z))
+			shutil.copy('rundir/outputRANK0-eigen-vectors.dat1','resultsdir/eigen_vectors-A{:d}-Z{:d}.dat1'.format(A,Z))
 
 
 elif mode == 1:
