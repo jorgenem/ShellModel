@@ -36,7 +36,7 @@ exp_values = [
 ]
 
 # Set run mode: 0 for calculation of levels, 1 for comparison of previous calculations to experimental levels
-mode = 1
+mode = 0
 
 
 if mode == 0:

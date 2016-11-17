@@ -130,26 +130,38 @@ def makeinputfile(A,Z,MJ,parity,totalJ,SPE,min_part,max_part,Nstates,max_iterati
 		else:
 			case = "p" # case of protons only
 			particle_number = Z-20
+
+		# Add header 
+		input_string = """
+		   ** All input data are identified through a text-line which
+           ** starts with the two symbols '/' and '*' and ends with ":" or ";"
+           ** Additional informative text may be included in the form
+           **        <........ Informative text....... >
+           ** 
+
+
+\* Shell model calculation of identical particle system -- title: output \n"""
+
 			
 		# Specify particle number
-		input_string = "\* The particle number: {:d}\n\n".format(particle_number)
+		input_string += "\* The particle number: {:d}\n\n".format(particle_number)
 		# Specify total angular momentum, projection and parity 
 		input_string += "\* Total angular momentum J is (even, odd): {:s}\n".format("even" if totalJ else "odd") # The variable MJ for identical particles assumes role of binary switch for even/odd total J
 		input_string += "\* Twice total projection of angular momentum: {:d}\n".format(MJ)
 		input_string += "\* Total parity (+, -): {}\n\n".format("+" if parity else "-")
 		# Set up orbital configuration
 		input_string += "\* The number of particle j-orbits: 4\n\n" # Four orbitals for both p and n
-		input_string += "	       <N  n  l  2*j   min_part  max_part energy:\n"
+		input_string += "	       <n  l  2*j   min_part  max_part energy:\n"
 		if case == "p":
-			input_string += "\* Orbit:   3  1  1   1       {:d}         {:d}     {:f}\n".format(min_part[3],max_part[3],SPE[3])
-			input_string += "\* Orbit:   3  0  3   5       {:d}         {:d}     {:f}\n".format(min_part[2],max_part[2],SPE[2])
-			input_string += "\* Orbit:   3  1  1   3       {:d}         {:d}     {:f}\n".format(min_part[1],max_part[1],SPE[1])
-			input_string += "\* Orbit:   3  0  3   7       {:d}         {:d}     {:f}\n\n".format(min_part[0],max_part[0],SPE[0])
+			input_string += "\* Orbit:   1  1   1       {:d}         {:d}     {:f}\n".format(min_part[3],max_part[3],SPE[3])
+			input_string += "\* Orbit:   0  3   5       {:d}         {:d}     {:f}\n".format(min_part[2],max_part[2],SPE[2])
+			input_string += "\* Orbit:   1  1   3       {:d}         {:d}     {:f}\n".format(min_part[1],max_part[1],SPE[1])
+			input_string += "\* Orbit:   0  3   7       {:d}         {:d}     {:f}\n\n".format(min_part[0],max_part[0],SPE[0])
 		elif case == "n":
-			input_string += "\* Orbit:   4  0  4   9       {:d}         {:d}     {:f}\n".format(min_part[7],max_part[7],SPE[7])	
-			input_string += "\* Orbit:   3  1  1   1       {:d}         {:d}     {:f}\n".format(min_part[6],max_part[6],SPE[6])
-			input_string += "\* Orbit:   3  0  3   5       {:d}         {:d}     {:f}\n".format(min_part[5],max_part[5],SPE[5])
-			input_string += "\* Orbit:   3  1  1   3       {:d}         {:d}     {:f}\n".format(min_part[4],max_part[4],SPE[4])
+			input_string += "\* Orbit:   0  4   9       {:d}         {:d}     {:f}\n".format(min_part[7],max_part[7],SPE[7])	
+			input_string += "\* Orbit:   1  1   1       {:d}         {:d}     {:f}\n".format(min_part[6],max_part[6],SPE[6])
+			input_string += "\* Orbit:   0  3   5       {:d}         {:d}     {:f}\n".format(min_part[5],max_part[5],SPE[5])
+			input_string += "\* Orbit:   1  1   3       {:d}         {:d}     {:f}\n".format(min_part[4],max_part[4],SPE[4])
 		else: 
 			raise ValueError("Error in function makeinputfile: Seems to be a case of only one type of valence particle, but neither protons nor neutrons. New Physics? (No, it has to be a bug.)")
 
