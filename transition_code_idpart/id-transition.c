@@ -978,18 +978,28 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
   EIGEN_DATA  h_eigenData;
 
   FILE       *filePtr;
+  printf("totDim = %d\n", totDim); // JEM
 
     if((filePtr = fopen(filename,"rb")) == NULL)  { 
       printf("\n\nError in function read_newn_id_eigenvector():");
       printf("\nNot allowed to open file %s\n", filename);
       exit(1);
     }
-  fseek(filePtr,(long)(eigenVecNum*(sizeof(EIGEN_DATA)
+  //  fseek(filePtr,(long)(eigenVecNum*(sizeof(EIGEN_DATA) // JEM HACK: Replaced with below version; 
+  fseek(filePtr,(long)(eigenVecNum*(3*sizeof(int) + 3*sizeof(double)
                                     + numj_orb*sizeof(double)
                                     + totDim*sizeof(float))),
 	                            SEEK_SET);
 
   // read structure EIGEN_DATA h_eigenData
+
+  /* JEM HACK 20170210: sizeof(EIGEN_DATA) gets messed up, possibly a
+  64 bit vs 32 bit issue. It should be 36 bytes long, and that is what is 
+  stored in the vector created by the shell model, but sizeof(EIGEN_DATA)
+  is 40 bytes. This shifts everything and messes up reading of eigenvectors.
+  To get around it I have replaced the immedately below fread call with a 
+  series of freads that read the six individual pieces of the h_eigendata
+  struct.
 
   if(fread((void *)&h_eigenData,(size_t) sizeof(EIGEN_DATA), 1, 
                                                  filePtr) != 1) {
@@ -997,7 +1007,37 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
     printf("\nIn reading h_eigendata");
     printf("\nfrom file %s\n",filename);
     exit(1);
-  }   // end of if-test
+  }   // end of if-test */
+
+  // JEM addition 20170210 START
+  if (fread((void *)&h_eigenData.vecNum,(size_t)sizeof(int),1,filePtr) != 1) {
+      printf("\nError with vecNum");
+  }
+  if (fread((void *)&h_eigenData.dim,(size_t)sizeof(int),1,filePtr) != 1) {
+      printf("\nError with dim");
+  }
+  if (fread((void *)&h_eigenData.numj_occ,(size_t)sizeof(int),1,filePtr) != 1) {
+      printf("\nError with numj_occ");
+  }
+  if (fread((void *)&h_eigenData.eigenVal,(size_t)sizeof(double),1,filePtr) != 1) {
+      printf("\nError with eigenVal");
+  }
+  if (fread((void *)&h_eigenData.angMom,(size_t)sizeof(double),1,filePtr) != 1) {
+      printf("\nError with angMom");
+  }
+  if (fread((void *)&h_eigenData.val_CM,(size_t)8,1,filePtr) != 1) {
+      printf("\nError with val_CM");
+  }
+
+
+  // JEM addition 20170210 END
+
+
+
+  // JEM 20170208: Test writing out ingredients of h_eigenData:
+  printf("\nJEM: h_eigenData: vecNum = %d, dim = %d, numj_occ = %d,\neigenVal = %lf, angMom = %lf, val_CM = %lf\n",
+   h_eigenData.vecNum, h_eigenData.dim, h_eigenData.numj_occ,
+   h_eigenData.eigenVal, h_eigenData.angMom, h_eigenData.val_CM);
 
   // test vector number
 
