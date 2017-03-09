@@ -1,5 +1,5 @@
 #GCC= gcc -g  -Wall
-GCC= mpicc -fno-stack-protector
+GCC= gcc -g
 
 
 trans-pn :          transition-main.o  id-transition.o pn-transition.o  transition-lib.o   

@@ -1189,11 +1189,37 @@ void read_pn_eigenvector(char *file_name,int eigen_num, int elements, double *ve
       exit(1);
    }
 
+
+
+
+   //JEM read info about number of j-orbits from first vector in file
+   EIGEN_DATA_pn info;
+   if(fread((void *)&info,(size_t)sizeof(EIGEN_DATA_pn),1,file_ptr) != 1)  {
+       printf("\nError in function readShellmodelEigenVec()");
+       printf("\nIn reading struct eigenDatafrom file %s\n",file_name);
+   } // end of if-test
+   //cout << "Eigendata: vecNum = " << data.vecNum << ", dim = " << data.dim << endl;
+   printf("\nEigendata: vecNum = %d, dim = %d\n", info.vecNum, info.dim);
+   //cout << "numj_occ[0] = " << data.numj_occ[0] << ", numj_occ[1] = " << data.numj_occ[1] << ", eigenVal = " << data.eigenVal << ", angMom = " << data.angMom << ", val_CM = " << data.val_CM << endl;
+   printf("numj_occ[0] = %d, numj_occ[1] = %d", info.numj_occ[0], info.numj_occ[1]);
+   if (elements != info.dim) {
+    printf("Warning from read_pn_eigenvector(): Dimension passed to function is different from dimension read from eigenvector file.\n");
+   }
+
+   // JEM rewind to start, then fseek to the vector we want
    rewind(file_ptr);
 
-   fseek(file_ptr,(long)(eigen_num * (2*sizeof(int) +  elements * sizeof(double))),SEEK_SET);
+   // JEM commented out original: fseek(file_ptr,(long)(eigen_num * (2*sizeof(int) +  elements * sizeof(double))),SEEK_SET);
+   // JEM replacement:
+   int numj_occ_total;
+   numj_occ_total = info.numj_occ[0]+info.numj_occ[1];
+   fseek(file_ptr,(long)(eigen_num * (sizeof(EIGEN_DATA_pn)
+                            + numj_occ_total * sizeof(double) 
+                            + info.dim * sizeof(float))), SEEK_SET);
 
-   if(fread((void *)&n,(size_t)sizeof(int),1,file_ptr) != 1) {/* read  vector number*/
+   // JEM commented out original: 
+   /*
+   if(fread((void *)&n,(size_t)sizeof(int),1,file_ptr) != 1) {// read  vector number
       printf("\n\nError in function read_pn_eigenvector():");
       printf("\nSomething is wrong in reading the vector number n = %d\n",n);
       exit(1);
@@ -1204,9 +1230,9 @@ void read_pn_eigenvector(char *file_name,int eigen_num, int elements, double *ve
       printf("\n The correct eigenvector has not been found");
       printf("\neigenvector number = %d   number read = %d\n",eigen_num,n);
       exit(1);
-   } /* end of if-test */
+   } // end of if-test 
 
-  if(fread((void *)&n,(size_t)sizeof(int),1,file_ptr) != 1) {/* read  vector dimension */
+  if(fread((void *)&n,(size_t)sizeof(int),1,file_ptr) != 1) {// read  vector dimension
       printf("\n\nError in function read_pn_eigenvector():");
       printf("\nSomething is wrong in reading the dimension of the vector number n = %d\n",n);
       exit(1);
@@ -1216,15 +1242,76 @@ void read_pn_eigenvector(char *file_name,int eigen_num, int elements, double *ve
       printf("\nWrong dimension of eigenvector number %d  in file %s",eigen_num, file_name );
       printf("\n The correct dimension = %d   number read = %d\n",elements,n);
       exit(1);
-   } /* end of if-test */
+   } // end of if-test 
+   */
 
-   if(fread((void *) vec_ptr, (size_t) sizeof(double),        /* read the vector */
+   // JEM replacement: Read all header info into struct data
+   EIGEN_DATA_pn data;
+   if(fread((void *)&data,(size_t)sizeof(EIGEN_DATA_pn),1,file_ptr) != 1)  {
+       printf("\nError in function readShellmodelEigenVec()");
+       printf("\nIn reading struct eigenDatafrom file %s\n",file_name);
+   } // end of if-test
+
+   // JEM then read j_occ information:
+   double j_occ[numj_occ_total];
+   if(fread((void *) j_occ, (size_t) sizeof(double), 
+            (size_t) numj_occ_total, file_ptr) != numj_occ_total) {
+       printf("\n\n Error when reading j_occ:");
+       printf("\nWrong number of elements in file %s\n",file_name );
+   }
+   //cout << "j_occ[0] = " << j_occ[0] << ", j_occ[1] = " << j_occ[1] << ", j_occ[2] = " << j_occ[2] << ", j_occ[3] = " << j_occ[3] << endl;
+   int i;
+   for (i=0; i < numj_occ_total; i++)
+   {
+       printf("j_occ[%d] = %f, ", i, j_occ[i]);
+   }
+   printf("\n"); 
+   // JEM end replacement. Finally, read the vector components (not modified by me):
+
+
+
+/*   if(fread((void *) vec_ptr, (size_t) sizeof(float),        // read the vector 
            (size_t) elements, file_ptr) != (size_t) elements)    {
       printf("\n\n Error in function read_pneigenvector():");
       printf("\nWrong number of elements in file %s",file_name );
       printf("\nvector_num = %d elements = %d read = %d\n",eigen_num,elements,n);
       exit(1);
-   }   /* end of if-test  */
+   }   // end of if-test  
+
+
+*/
+
+      {
+        int     k;
+        float   *temp_mem, *init_ptr;
+        double  *final_ptr;
+
+        temp_mem   = (float *) malloc((ULL)(elements * sizeof(float)));
+
+        if(fread((void *) temp_mem, (size_t) sizeof(float),        /* read the vector */
+          (size_t) elements, file_ptr) != (size_t) elements) {
+          printf("\n\n Error in function read_new_id_eigenvector():");
+          printf("\nWrong number of elements in file %s",file_name );
+          printf("\nvector_num = %d elements = %d\n",eigen_num, elements);
+          exit(1);
+        }   /* end of if-test  */
+
+        init_ptr  = temp_mem;
+        final_ptr = vec_ptr;
+
+        for(k = 0; k < elements; k++)  {
+          *(final_ptr++) = (double)(*(init_ptr++));
+        }
+        free(temp_mem);
+      }
+
+   // JEM debug: Print vector components
+   printf("Printing eigenvector components:\n");
+   for (i=0; i<elements; i++) {
+    printf("%f ", vec_ptr[i]);
+   }
+   printf("\n");
+
 
    fclose(file_ptr);
    return;

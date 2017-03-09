@@ -975,7 +975,7 @@ void read_id_eigenvector(char *file_name,int eigen_num, int num_asym,
 void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
                   int numj_orb, double *j_occ, double *eigenVec)
 {
-  EIGEN_DATA  h_eigenData;
+  EIGEN_DATA_id  h_eigenData;
 
   FILE       *filePtr;
   printf("totDim = %d\n", totDim); // JEM
@@ -985,23 +985,23 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
       printf("\nNot allowed to open file %s\n", filename);
       exit(1);
     }
-  //  fseek(filePtr,(long)(eigenVecNum*(sizeof(EIGEN_DATA) // JEM HACK: Replaced with below version; 
+  //  fseek(filePtr,(long)(eigenVecNum*(sizeof(EIGEN_DATA_id) // JEM HACK: Replaced with below version; 
   fseek(filePtr,(long)(eigenVecNum*(3*sizeof(int) + 3*sizeof(double)
                                     + numj_orb*sizeof(double)
                                     + totDim*sizeof(float))),
 	                            SEEK_SET);
 
-  // read structure EIGEN_DATA h_eigenData
+  // read structure EIGEN_DATA_id h_eigenData
 
-  /* JEM HACK 20170210: sizeof(EIGEN_DATA) gets messed up, possibly a
+  /* JEM HACK 20170210: sizeof(EIGEN_DATA_id) gets messed up, possibly a
   64 bit vs 32 bit issue. It should be 36 bytes long, and that is what is 
-  stored in the vector created by the shell model, but sizeof(EIGEN_DATA)
+  stored in the vector created by the shell model, but sizeof(EIGEN_DATA_id)
   is 40 bytes. This shifts everything and messes up reading of eigenvectors.
   To get around it I have replaced the immedately below fread call with a 
   series of freads that read the six individual pieces of the h_eigendata
   struct.
 
-  if(fread((void *)&h_eigenData,(size_t) sizeof(EIGEN_DATA), 1, 
+  if(fread((void *)&h_eigenData,(size_t) sizeof(EIGEN_DATA_id), 1, 
                                                  filePtr) != 1) {
     printf("\nError in function read_new_id_eigenvector()");
     printf("\nIn reading h_eigendata");

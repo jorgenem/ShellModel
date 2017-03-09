@@ -269,6 +269,7 @@
     /*
     **  structure for eigenvector data 
     **  from Lanczos iteration procedure
+    **  for IdenticalParticles case (p or n only)
     */
 
 typedef   struct {
@@ -278,7 +279,22 @@ typedef   struct {
      double  eigenVal,
                angMom,
                val_CM;
-} EIGEN_DATA;
+} EIGEN_DATA_id;
+
+    /*
+    **  structure for eigenvector data 
+    **  from Lanczos iteration procedure
+    **  for pnCase (both p and n)
+    */
+
+typedef   struct {
+     int       vecNum,
+                  dim,
+             numj_occ[2];
+     double  eigenVal,
+               angMom,
+               val_CM;
+} EIGEN_DATA_pn;
 
       	/* function definition for trans-1.c */
 
