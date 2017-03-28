@@ -1201,9 +1201,9 @@ void read_pn_eigenvector(char *file_name,int eigen_num, int elements, double *ve
    //cout << "Eigendata: vecNum = " << data.vecNum << ", dim = " << data.dim << endl;
    printf("\nEigendata: vecNum = %d, dim = %d\n", info.vecNum, info.dim);
    //cout << "numj_occ[0] = " << data.numj_occ[0] << ", numj_occ[1] = " << data.numj_occ[1] << ", eigenVal = " << data.eigenVal << ", angMom = " << data.angMom << ", val_CM = " << data.val_CM << endl;
-   printf("numj_occ[0] = %d, numj_occ[1] = %d", info.numj_occ[0], info.numj_occ[1]);
+   printf("numj_occ[0] = %d, numj_occ[1] = %d\n", info.numj_occ[0], info.numj_occ[1]);
    if (elements != info.dim) {
-    printf("Warning from read_pn_eigenvector(): Dimension passed to function is different from dimension read from eigenvector file.\n");
+    printf("\nWarning from read_pn_eigenvector(): \nDimension passed to function is different from dimension read from eigenvector file: elements = %d, info.dim = %d\n", elements, info.dim);
    }
 
    // JEM rewind to start, then fseek to the vector we want

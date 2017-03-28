@@ -965,6 +965,9 @@ double m_scheme_m1_diag(int part_type, int number,struct mbas *orbit)
   double  factor = 0.488602512; // = sqrt(3/(4*pi))
   double  value;
 
+  printf("JEM debug: Hello from m_scheme_m1_diag\n");
+
+
      /*  Single particle quantum numbers l, j, m */
 
   n = orbit[number].osc;
@@ -992,6 +995,7 @@ double m_scheme_m1_diag(int part_type, int number,struct mbas *orbit)
         exit(1);
   } 
 	
+  printf("JEM debug: value = %f\n", value);
   return value;
 
 } /* End; function m_scheme_m1_diag() */
@@ -1017,6 +1021,8 @@ double m_scheme_m1_nondiag(int part_type, int left, int right, struct mbas *orbi
   double        factor = 0.488602512; // = sqrt(3/(4*pi))
 
   double         value;
+
+  printf("JEM debug: Hello from m_scheme_m1_nondiag\n");
 
      /*  left side single particle quantum numbers  */
 
@@ -1046,10 +1052,15 @@ double m_scheme_m1_nondiag(int part_type, int left, int right, struct mbas *orbi
               * clebsch_gordan(j_i, 2, j_f, m_i, m_f - m_i);
   }
  else   {
+        // JEM 20170213 HACK: Replaced the bellow exit(1) error with simply returning the value D_ZERO.
+        // JEM 20170213 HACK This is to avoid the code stopping when computing transitions between differing MJ runs 
+        // JEM 20170213 HACK of the shell model.
         printf("\n\nError in function m_scheme_m1_nondiag():");
-        printf("\n Wrong; 2 * j_i = %d  and l_i = %d\n 2 * j_f = %d and l_f = %d", j_i, l_i, j_f, l_f); // JEM 20170207: Added printing of J_f and l_f
+        printf("\n Wrong; 2 * j_i = %d and l_i = %d,\n        2 * j_f = %d and l_f = %d\n", j_i, l_i, j_f, l_f); // JEM 20170207: Added printing of J_f and l_f
         exit(1);
+        //value = 0; // JEM 20170213 HACK
   } 
+  printf("JEM debug: value = %f\n", value);
 
   return value * ( (part_type)  
 		   ? (Model[0].m1_n_eff_gs - Model[0].m1_n_eff_gl) 

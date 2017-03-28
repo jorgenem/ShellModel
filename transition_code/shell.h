@@ -31,7 +31,7 @@
           /* max. factorials in Clebsch-Gordan coefficients */
 
 #define FAC_LIM                300
-#define ONE_LINE                80
+#define ONE_LINE               800 // JEM changed from 80 to 800 20170314
 #define MAX_PARTICLES          100
 #define ZERO_LIMIT         1.0E-10
 #define MATRIX_LIMIT       1.0E-05

@@ -824,7 +824,7 @@ void id_particle_transitions(int trans_type)
 
 /*********************  New  *********************/
 
-	read_new_id_eigenvector(File_eigen_init, init_num,
+	read_new_id_eigenvector(File_eigen_init, final_num, // JEM 20170328 changed to final_num from init_num! Think this was a bug!
 				 Info_id[0].num[0] + Info_id[0].num[1],
 	                         Model[0].numj_N,j_occ, Eigen_vec);
 
@@ -841,7 +841,8 @@ void id_particle_transitions(int trans_type)
       fprintf(Files.out_data,"\n    %2d %2d        %2d %2d            ", /* Print result */
           init_num, Model[0].trans[trans].j_init,final_num, Model[0].trans[trans].j_final);
       fprintf(Files.out_data,"               %14.8E",value);
-      init_save = init_num; /* saved for next transition */
+      // init_save = init_num; /* saved for next transition */
+      init_save = -1; // JEM 20170327 testing -- didnt make a difference
    } /* all transitions calculated */
 } /* End: function id_particle_transitions() */
 
@@ -978,20 +979,14 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
   EIGEN_DATA_id  h_eigenData;
 
   FILE       *filePtr;
-  printf("totDim = %d\n", totDim); // JEM
+  // JEM 20170309 (working) printf("totDim = %d\n", totDim);
 
     if((filePtr = fopen(filename,"rb")) == NULL)  { 
       printf("\n\nError in function read_newn_id_eigenvector():");
       printf("\nNot allowed to open file %s\n", filename);
       exit(1);
     }
-  //  fseek(filePtr,(long)(eigenVecNum*(sizeof(EIGEN_DATA_id) // JEM HACK: Replaced with below version; 
-  fseek(filePtr,(long)(eigenVecNum*(3*sizeof(int) + 3*sizeof(double)
-                                    + numj_orb*sizeof(double)
-                                    + totDim*sizeof(float))),
-	                            SEEK_SET);
 
-  // read structure EIGEN_DATA_id h_eigenData
 
   /* JEM HACK 20170210: sizeof(EIGEN_DATA_id) gets messed up, possibly a
   64 bit vs 32 bit issue. It should be 36 bytes long, and that is what is 
@@ -1001,13 +996,33 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
   series of freads that read the six individual pieces of the h_eigendata
   struct.
 
+  JEM update 20170309: Trying changing this back to reading the struct, since I'm having trouble reading 60Ni eigenvectors in jj44pna.
+  */
+
+
+  // fseek(filePtr,(long)(eigenVecNum*(sizeof(EIGEN_DATA_id) // JEM HACK: Replaced with below version; 
+  fseek(filePtr,(long)(eigenVecNum*(3*sizeof(int) + 3*sizeof(double) 
+                                    + numj_orb*sizeof(double)
+                                    + totDim*sizeof(float))),
+                              SEEK_SET);
+  //JEM debugging 20170309 printf("JEM debug: totDim = %d, eigenVecNum = %d\n", totDim, eigenVecNum);
+  //JEM debugging 20170309 printf("JEM debug: Number of bytes in eigenvector level with struct = %d\n",(int) (sizeof(EIGEN_DATA_id) + numj_orb*sizeof(double) + totDim*sizeof(float)));
+  //JEM debugging 20170309 printf("JEM debug: Number of bytes in eigenvector level with individual struct components = %d\n",(int) (3*sizeof(int) + 3*sizeof(double) + numj_orb*sizeof(double) + totDim*sizeof(float)));
+  //JEM debugging 20170309 printf("JEM debug: sizeof(EIGEN_DATA_id) = %d, 3*sizeof(int)+3*sizeof(double) = %d\n\n", (int)sizeof(EIGEN_DATA_id),(int) (3*sizeof(int)+3*sizeof(double)));
+
+
+
+/*
+  // read structure EIGEN_DATA_id h_eigenData
+
   if(fread((void *)&h_eigenData,(size_t) sizeof(EIGEN_DATA_id), 1, 
                                                  filePtr) != 1) {
     printf("\nError in function read_new_id_eigenvector()");
     printf("\nIn reading h_eigendata");
     printf("\nfrom file %s\n",filename);
     exit(1);
-  }   // end of if-test */
+  }   // end of if-test 
+*/
 
   // JEM addition 20170210 START
   if (fread((void *)&h_eigenData.vecNum,(size_t)sizeof(int),1,filePtr) != 1) {
@@ -1033,11 +1048,10 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
   // JEM addition 20170210 END
 
 
-
   // JEM 20170208: Test writing out ingredients of h_eigenData:
-  printf("\nJEM: h_eigenData: vecNum = %d, dim = %d, numj_occ = %d,\neigenVal = %lf, angMom = %lf, val_CM = %lf\n",
-   h_eigenData.vecNum, h_eigenData.dim, h_eigenData.numj_occ,
-   h_eigenData.eigenVal, h_eigenData.angMom, h_eigenData.val_CM);
+  // JEM 20170309 (working) printf("\nJEM: h_eigenData: vecNum = %d, dim = %d, numj_occ = %d,\neigenVal = %lf, angMom = %lf, val_CM = %lf\n",
+  // JEM 20170309 (working)  h_eigenData.vecNum, h_eigenData.dim, h_eigenData.numj_occ,
+  // JEM 20170309 (working)  h_eigenData.eigenVal, h_eigenData.angMom, h_eigenData.val_CM);
 
   // test vector number
 
@@ -1107,6 +1121,7 @@ void  id_trans_contribution(int part_num, int orb_num, int init_asym_sd, int ini
       if(Model[0].same_basis == YES)   {   /* same basis  - diagonal contribution */
 
          diag_contr(init_asym_sd, 2, SD_diag, init, final);
+          printf("JEM debug: id_trans_contribution(), diag_contr()\n");
          if(Info_com[0].J_even && Info_com[1].J_even)  {             
             diag_contr(init_sym_sd, 1, SD_diag + init_asym_sd,
                               init + init_asym_sd, final + init_asym_sd);
@@ -1117,6 +1132,7 @@ void  id_trans_contribution(int part_num, int orb_num, int init_asym_sd, int ini
 
       id_nondiag_asymI(part_num, orb_num, init_asym_sd,
                            final_asym_sd, final_sym_sd, table_id, init, final); 
+      printf("JEM debug: id_trans_contribution(), id_nondiag_asymI()\n");
       if(Info_com[0].J_even) { 
          id_nondiag_symI(part_num, orb_num, init_sym_sd,
                   final_asym_sd, final_sym_sd, table_id, init + init_asym_sd, final); 
@@ -1131,6 +1147,7 @@ void  id_trans_contribution(int part_num, int orb_num, int init_asym_sd, int ini
                 */
 
       id_nondiag_asymII(part_num, orb_num, init_asym_sd, final_asym_sd, table_id, init, final);
+      printf("JEM debug: id_trans_contribution(), id_nondiag_asymII()\n");
       if(Info_com[0].J_even)   { 
          id_nondiag_symII
             (part_num, orb_num, init_sym_sd, final_asym_sd, table_id, init + init_asym_sd, final);
@@ -1144,8 +1161,9 @@ void  id_trans_contribution(int part_num, int orb_num, int init_asym_sd, int ini
                 * symmetry, but the initial eigenvectors have no symmetry. 
                 */
 
-      id_nondiag_nosymIII
-         (part_num, orb_num, init_asym_sd, final_asym_sd, final_sym_sd, table_id, init, final);
+      id_nondiag_nosymIII(part_num, orb_num, init_asym_sd, final_asym_sd, final_sym_sd, table_id, init, final);
+
+      printf("JEM debug: id_trans_contribution(), id_nondiag_nosymIII()\n");
    } /* end time-reversal symmetry in final states and no symmetry in init states */
 
    else if(!Info_com[0].tr_sym && !Info_com[1].tr_sym)   {
@@ -1155,12 +1173,15 @@ void  id_trans_contribution(int part_num, int orb_num, int init_asym_sd, int ini
       if(Model[0].same_basis == YES)   {   /* same basis  - diagonal contribution */
 
          diag_contr(init_asym_sd, 1, SD_diag, init, final);
+         printf("JEM debug: id_trans_contribution(), nosym & same_basis\n");
 
       } /* end diagonal contributions */
 
                   /* non-diagonal contributions */
-
+      printf("JEM debug: final = %f\n", *final);
       id_nondiag_nosymIV(part_num, orb_num, init_asym_sd, final_asym_sd, table_id, init, final);
+      printf("JEM debug: final = %f\n", *final);
+      printf("JEM debug: id_trans_contribution(), id_nondiag_nosymIV()\n");
 
    } /* end  with no symmetry  in both initial and final states.*/
 
@@ -1183,10 +1204,14 @@ void  id_trans_contribution(int part_num, int orb_num, int init_asym_sd, int ini
 
 void diag_contr(int num_SD, int factor, double *sd_diag, double *init, double *final)
 {
+   printf("JEM debug: diag_contr().\n final[] =");
    if(num_SD == 0)  return;     
    do  {
       *(final++) = factor * (*(init++)) * (*(sd_diag++));
+      if (*final > 0) printf("%f", *final); // JEM debug
+
    } while(--num_SD);
+   printf("\n JEM debug: done printing final[]\n");
    return;
 } /* End: function diag_contr() */
 
@@ -1937,11 +1962,13 @@ void id_nondiag_nosymIV(int part_num, int num_orb, int num_init_sd, int num_fina
               /* contribution SD_nosym[0][loop] --> SD_nosym[1][search_num] */
 
            final[search_num] += phase * kl_ptr->val * in_ampl;
+           printf("final[%d]=%15.10f\n", search_num, final[search_num]);
 
         } while((++kl_ptr)->one); /* end do-loop for contribution from all matr. elem */
      } /* end l particle loop */
 
   } /* end of for-loop through the SD components */
+  printf("\n");
 
 } /* End: function id_nondiag_nosymIV() */
 
@@ -1963,6 +1990,7 @@ double overlap(int num_asym_sd, int num_sym_sd,
    if(number)   {
       eigen_ptr = final_eigen;
       do {
+        printf("<final|[i] = %f\n", *eigen_ptr);
          result += (*(eigen_ptr++)) * (*(trans_contr++));
       } while(--number);
 
@@ -1980,6 +2008,7 @@ double overlap(int num_asym_sd, int num_sym_sd,
       } while(--number);
    }  /* end symmetric contributions */
 
+  printf("JEM debug: overlap() = %f\n", result);
    return result;
 
 } /* End: function overlap()  */
