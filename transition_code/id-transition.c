@@ -824,7 +824,7 @@ void id_particle_transitions(int trans_type)
 
 /*********************  New  *********************/
 
-	read_new_id_eigenvector(File_eigen_init, init_num,
+	read_new_id_eigenvector(File_eigen_init, final_num, // JEM 20170328: Changed from init_num to final_num, think this was a bug
 				 Info_id[0].num[0] + Info_id[0].num[1],
 	                         Model[0].numj_N,j_occ, Eigen_vec);
 
@@ -1035,9 +1035,9 @@ void read_new_id_eigenvector(char *filename,int eigenVecNum, int totDim,
 
 
   // JEM 20170208: Test writing out ingredients of h_eigenData:
-  printf("\nJEM: h_eigenData: vecNum = %d, dim = %d, numj_occ = %d,\neigenVal = %lf, angMom = %lf, val_CM = %lf\n",
-   h_eigenData.vecNum, h_eigenData.dim, h_eigenData.numj_occ,
-   h_eigenData.eigenVal, h_eigenData.angMom, h_eigenData.val_CM);
+  // JEM printf("\nJEM: h_eigenData: vecNum = %d, dim = %d, numj_occ = %d,\neigenVal = %lf, angMom = %lf, val_CM = %lf\n",
+  // JEM h_eigenData.vecNum, h_eigenData.dim, h_eigenData.numj_occ,
+  // JEM h_eigenData.eigenVal, h_eigenData.angMom, h_eigenData.val_CM);
 
   // test vector number
 

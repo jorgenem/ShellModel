@@ -1046,9 +1046,10 @@ double m_scheme_m1_nondiag(int part_type, int left, int right, struct mbas *orbi
               * clebsch_gordan(j_i, 2, j_f, m_i, m_f - m_i);
   }
  else   {
-        printf("\n\nError in function m_scheme_m1_nondiag():");
-        printf("\n Wrong; 2 * j_i = %d  and l_i = %d\n 2 * j_f = %d and l_f = %d", j_i, l_i, j_f, l_f); // JEM 20170207: Added printing of J_f and l_f
-        exit(1);
+        // JEM HACK 20170328 printf("\n\nError in function m_scheme_m1_nondiag():");
+        // JEM HACK 20170328 printf("\n Wrong; 2 * j_i = %d  and l_i = %d\n 2 * j_f = %d and l_f = %d", j_i, l_i, j_f, l_f); // JEM 20170207: Added printing of J_f and l_f
+        // JEM HACK 20170328 exit(1);
+       return D_ZERO; // JEM HACK 20170328 -- I think this avoids the code stopping, but keeps the physics intact. It is essentially an improvement of the if test at the beginning, which also returns D_ZERO when the attempted calculation is unphysical. 
   } 
 
   return value * ( (part_type)  
